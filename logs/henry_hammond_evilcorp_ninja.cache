@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <User>
+      <DisplayName>Henry HH. Hammond</DisplayName>
+      <LegacyDN>/o=Evilcorp/ou=Exchange Administrative Group (FYDIBOHF23SPDLT)/cn=Recipients/cn=a93b5c2a67324c078b4c7eab84a7601d-Henry HH. Hammo</LegacyDN>
+      <AutoDiscoverSMTPAddress>Henry.Hammond@evilcorp.ninja</AutoDiscoverSMTPAddress>
+      <DeploymentId>2d95033f-b8c2-411d-991e-db5934441ea2</DeploymentId>
+    </User>
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <MicrosoftOnline>False</MicrosoftOnline>
+      <Protocol Type="mapiHttp" Version="1">
+        <MailStore>
+          <InternalUrl>https://midgard-exch.evilcorp.local/mapi/emsmdb/?MailboxId=224716c9-3c44-41c4-91a1-c2bde39d31b3@evilcorp.ninja</InternalUrl>
+          <ExternalUrl>https://mail.evilcorp.ninja/mapi/emsmdb/?MailboxId=224716c9-3c44-41c4-91a1-c2bde39d31b3@evilcorp.ninja</ExternalUrl>
+        </MailStore>
+        <AddressBook>
+          <InternalUrl>https://midgard-exch.evilcorp.local/mapi/nspi/?MailboxId=224716c9-3c44-41c4-91a1-c2bde39d31b3@evilcorp.ninja</InternalUrl>
+          <ExternalUrl>https://mail.evilcorp.ninja/mapi/nspi/?MailboxId=224716c9-3c44-41c4-91a1-c2bde39d31b3@evilcorp.ninja</ExternalUrl>
+        </AddressBook>
+      </Protocol>
+      <Protocol>
+        <Type>WEB</Type>
+        <Internal>
+          <OWAUrl AuthenticationMethod="Basic, Fba">https://midgard-exch.evilcorp.local/owa/</OWAUrl>
+          <Protocol>
+            <Type>EXCH</Type>
+            <ASUrl>https://midgard-exch.evilcorp.local/EWS/Exchange.asmx</ASUrl>
+          </Protocol>
+        </Internal>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>

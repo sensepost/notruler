@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <User>
+      <DisplayName>Cindy Baker</DisplayName>
+      <LegacyDN>/o=Evilcorp/ou=Exchange Administrative Group (FYDIBOHF23SPDLT)/cn=Recipients/cn=855e32af775b4800bfe42d07b9bf3476-Cindy Baker</LegacyDN>
+      <AutoDiscoverSMTPAddress>Cindy.Baker@evilcorp.ninja</AutoDiscoverSMTPAddress>
+      <DeploymentId>2d95033f-b8c2-411d-991e-db5934441ea2</DeploymentId>
+    </User>
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <MicrosoftOnline>False</MicrosoftOnline>
+      <Protocol Type="mapiHttp" Version="1">
+        <MailStore>
+          <InternalUrl>https://midgard-exch.evilcorp.local/mapi/emsmdb/?MailboxId=8df28c11-55e5-4f13-9506-c9dc7179084d@evilcorp.ninja</InternalUrl>
+          <ExternalUrl>https://mail.evilcorp.ninja/mapi/emsmdb/?MailboxId=8df28c11-55e5-4f13-9506-c9dc7179084d@evilcorp.ninja</ExternalUrl>
+        </MailStore>
+        <AddressBook>
+          <InternalUrl>https://midgard-exch.evilcorp.local/mapi/nspi/?MailboxId=8df28c11-55e5-4f13-9506-c9dc7179084d@evilcorp.ninja</InternalUrl>
+          <ExternalUrl>https://mail.evilcorp.ninja/mapi/nspi/?MailboxId=8df28c11-55e5-4f13-9506-c9dc7179084d@evilcorp.ninja</ExternalUrl>
+        </AddressBook>
+      </Protocol>
+      <Protocol>
+        <Type>WEB</Type>
+        <Internal>
+          <OWAUrl AuthenticationMethod="Basic, Fba">https://midgard-exch.evilcorp.local/owa/</OWAUrl>
+          <Protocol>
+            <Type>EXCH</Type>
+            <ASUrl>https://midgard-exch.evilcorp.local/EWS/Exchange.asmx</ASUrl>
+          </Protocol>
+        </Internal>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>

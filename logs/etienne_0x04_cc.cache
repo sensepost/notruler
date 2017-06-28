@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <User>
+      <DisplayName>Etienne Stalmans</DisplayName>
+      <LegacyDN>/o=ExchangeLabs/ou=Exchange Administrative Group (FYDIBOHF23SPDLT)/cn=Recipients/cn=130d3c8295784d0aa504b05fe83acd7b-etienne</LegacyDN>
+      <AutoDiscoverSMTPAddress>etienne@0x04.cc</AutoDiscoverSMTPAddress>
+      <DeploymentId>158841c4-1ce1-400b-8686-fc02d030024c</DeploymentId>
+    </User>
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <MicrosoftOnline>True</MicrosoftOnline>
+      <Protocol Type="mapiHttp" Version="1">
+        <MailStore>
+          <ExternalUrl>https://outlook.office365.com/mapi/emsmdb/?MailboxId=d4094721-eafc-483d-adf4-4f39fe6bbc22@0x04.cc</ExternalUrl>
+        </MailStore>
+        <AddressBook>
+          <ExternalUrl>https://outlook.office365.com/mapi/nspi/?MailboxId=d4094721-eafc-483d-adf4-4f39fe6bbc22@0x04.cc</ExternalUrl>
+        </AddressBook>
+      </Protocol>
+      <Protocol>
+        <Type>WEB</Type>
+        <Internal>
+          <OWAUrl AuthenticationMethod="LiveIdFba, OAuth">https://outlook.office365.com/owa/</OWAUrl>
+          <Protocol>
+            <Type>EXCH</Type>
+            <ASUrl>https://outlook.office365.com/EWS/Exchange.asmx</ASUrl>
+          </Protocol>
+        </Internal>
+        <External>
+          <OWAUrl AuthenticationMethod="Fba">https://outlook.office365.com/owa/0x04.cc/</OWAUrl>
+          <Protocol>
+            <Type>EXPR</Type>
+            <ASUrl>https://outlook.office365.com/EWS/Exchange.asmx</ASUrl>
+          </Protocol>
+        </External>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>
