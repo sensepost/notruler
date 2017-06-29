@@ -266,9 +266,11 @@ func connect(c *cli.Context, mailbox string) error {
 }
 
 func printRules() error {
-	cols := make([]mapi.PropertyTag, 2)
+	cols := make([]mapi.PropertyTag, 3)
 	cols[0] = mapi.PidTagRuleID
 	cols[1] = mapi.PidTagRuleName
+	cols[2] = mapi.PidTagRuleActions
+
 	rows, er := mapi.FetchRules(cols)
 
 	if er != nil {
@@ -285,12 +287,14 @@ func printRules() error {
 			}
 		}
 		maxwidth -= 10
-		fmstr1 := fmt.Sprintf("%%-%ds | %%-s\n", maxwidth)
-		fmstr2 := fmt.Sprintf("%%-%ds | %%x\n", maxwidth)
-		utils.Info.Printf(fmstr1, "Rule Name", "Rule ID")
-		utils.Info.Printf("%s|%s\n", (strings.Repeat("-", maxwidth+1)), strings.Repeat("-", 18))
+
 		for k := 0; k < int(rows.RowCount); k++ {
-			utils.Info.Printf(fmstr2, string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray)
+
+			rd := mapi.RuleAction{}
+			rd.Unmarshal(rows.RowData[k][2].ValueArray)
+			if rd.ActionType == 0x05 {
+				utils.Info.Printf("Possible Action rule %s,%x\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray)
+			}
 		}
 		utils.Info.Println()
 	} else {
