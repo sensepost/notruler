@@ -266,19 +266,22 @@ func connect(c *cli.Context, mailbox string) error {
 }
 
 func printRules() error {
-	rules, er := mapi.DisplayRules()
+	cols := make([]mapi.PropertyTag, 2)
+	cols[0] = mapi.PidTagRuleID
+	cols[1] = mapi.PidTagRuleName
+	rows, er := mapi.FetchRules(cols)
 
 	if er != nil {
 		return er
 	}
 
-	if len(rules) > 0 {
-		utils.Info.Printf("Found %d rules\n", len(rules))
+	if rows.RowCount > 0 {
+		utils.Info.Printf("Found %d rules\n", rows.RowCount)
 		maxwidth := 30
 
-		for _, v := range rules {
-			if len(string(v.RuleName)) > maxwidth {
-				maxwidth = len(string(v.RuleName))
+		for k := 0; k < int(rows.RowCount); k++ {
+			if len(string(rows.RowData[k][1].ValueArray)) > maxwidth {
+				maxwidth = len(string(rows.RowData[k][1].ValueArray))
 			}
 		}
 		maxwidth -= 10
@@ -286,8 +289,8 @@ func printRules() error {
 		fmstr2 := fmt.Sprintf("%%-%ds | %%x\n", maxwidth)
 		utils.Info.Printf(fmstr1, "Rule Name", "Rule ID")
 		utils.Info.Printf("%s|%s\n", (strings.Repeat("-", maxwidth+1)), strings.Repeat("-", 18))
-		for _, v := range rules {
-			utils.Info.Printf(fmstr2, string(utils.FromUnicode(v.RuleName)), v.RuleID)
+		for k := 0; k < int(rows.RowCount); k++ {
+			utils.Info.Printf(fmstr2, string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray)
 		}
 		utils.Info.Println()
 	} else {
