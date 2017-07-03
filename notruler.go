@@ -397,7 +397,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 
 	app.Before = func(c *cli.Context) error {
 		if c.Bool("verbose") == true && c.Bool("debug") == false {
-			utils.Init(os.Stdout, os.Stdout, ioutil.Discard, os.Stderr)
+			utils.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 		} else if c.Bool("verbose") == false && c.Bool("debug") == true {
 			utils.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 		} else if c.Bool("debug") == true {
@@ -488,6 +488,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 						printRules()
 					}
 				}
+				mapi.Disconnect()
 				return nil
 			},
 		},
