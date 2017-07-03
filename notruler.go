@@ -293,10 +293,16 @@ func printRules() error {
 			rd := mapi.RuleAction{}
 			rd.Unmarshal(rows.RowData[k][2].ValueArray)
 			if rd.ActionType == 0x05 {
-				utils.Info.Printf("Possible Action rule %s,%x\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray)
+				utils.Info.Printf("Found client-side rule: name [%s], id [%x], trigger [%s]\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rd.ActionData.Trigger)))
+				if rd.ActionData.EndPoint != nil {
+					utils.Warning.Printf("Executes an application! %s\n", string(utils.FromUnicode(rd.ActionData.EndPoint)))
+				}
+				//unmarshal actionData
+				//ad := rd.ActionData
+				//utils.Info.Println(ad.Trigger, ad.EndPoint)
 			}
 		}
-		utils.Info.Println()
+
 	} else {
 		utils.Info.Printf("No Rules Found\n")
 	}
@@ -397,7 +403,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		} else if c.Bool("debug") == true {
 			utils.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 		} else {
-			utils.Init(ioutil.Discard, os.Stdout, ioutil.Discard, os.Stderr)
+			utils.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 		}
 
 		//if no password or hash was supplied, read from stdin
