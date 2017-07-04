@@ -294,12 +294,13 @@ func printRules() error {
 			rd.Unmarshal(rows.RowData[k][2].ValueArray)
 			if rd.ActionType == 0x05 {
 				utils.Info.Printf("Found client-side rule: name [%s], id [%x], trigger [%s]\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rd.ActionData.Trigger)))
-				if rd.ActionData.EndPoint != nil {
-					utils.Warning.Printf("Executes an application! %s\n", string(utils.FromUnicode(rd.ActionData.EndPoint)))
+				for _, v := range rd.ActionData.Conditions {
+					if v.Tag[1] == 0x49 {
+						utils.Warning.Printf("Executes an application! %s\n", string(utils.FromUnicode(v.Value)))
+						break
+					}
 				}
-				//unmarshal actionData
-				//ad := rd.ActionData
-				//utils.Info.Println(ad.Trigger, ad.EndPoint)
+
 			}
 		}
 
@@ -426,7 +427,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		config.Basic = c.GlobalBool("basic")
 		config.Insecure = c.GlobalBool("insecure")
 		config.Verbose = c.GlobalBool("verbose")
-		config.Admin = true
+		config.Admin = false //true
 		config.RPCEncrypt = !c.GlobalBool("noencrypt")
 		config.CookieJar, _ = cookiejar.New(nil)
 		config.Proxy = c.GlobalString("proxy")
