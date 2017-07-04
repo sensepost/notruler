@@ -293,19 +293,52 @@ func printRules() error {
 			rd := mapi.RuleAction{}
 			rd.Unmarshal(rows.RowData[k][2].ValueArray)
 			if rd.ActionType == 0x05 {
-				utils.Info.Printf("Found client-side rule: name [%s], id [%x], trigger [%s]\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rd.ActionData.Trigger)))
+				//utils.Info.Printf("Found client-side rule: name [%s], id [%x], trigger [%s]\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rd.ActionData.Trigger)))
 				for _, v := range rd.ActionData.Conditions {
 					if v.Tag[1] == 0x49 {
-						utils.Warning.Printf("Executes an application! %s\n", string(utils.FromUnicode(v.Value)))
+						utils.Warning.Printf("Found client-side rule: [%x:%s] Application: [%s]\n", rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), string(utils.FromUnicode(v.Value)))
 						break
 					}
 				}
-
 			}
 		}
 
 	} else {
 		utils.Info.Printf("No Rules Found\n")
+	}
+	return nil
+}
+
+func displayForms() error {
+	folderid := mapi.AuthSession.Folderids[mapi.INBOX]
+
+	columns := make([]mapi.PropertyTag, 2)
+	columns[0] = mapi.PidTagOfflineAddressBookName
+	columns[1] = mapi.PidTagMid
+
+	assoctable, err := mapi.GetAssociatedContents(folderid, columns)
+	if err != nil {
+		utils.Error.Println("Failed to find any forms.")
+		return err
+	}
+	var forms []string
+
+	for k := 0; k < len(assoctable.RowData); k++ {
+		if assoctable.RowData[k][0].Flag != 0x00 {
+			continue
+		}
+		name := utils.FromUnicode(assoctable.RowData[k][0].ValueArray)
+		if name != "" && len(name) > 3 {
+			forms = append(forms, name)
+		}
+	}
+	if len(forms) > 0 {
+		utils.Info.Printf("Found %d forms\n", len(forms))
+		for _, v := range forms {
+			utils.Info.Println(v)
+		}
+	} else {
+		utils.Info.Printf("No Forms Found\n")
 	}
 	return nil
 }
@@ -487,6 +520,35 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 					} else {
 						utils.Info.Printf("Checking [%s]\n", mailbox)
 						printRules()
+					}
+				}
+				mapi.Disconnect()
+				return nil
+			},
+		},
+		{
+			Name:    "forms",
+			Aliases: []string{"r"},
+			Usage:   "Reviews all forms and tries to find forms with attached vbscript",
+			Action: func(c *cli.Context) error {
+				var mailboxes []string
+
+				if config.Email != "" {
+					mailboxes = append(mailboxes, config.Email)
+				}
+
+				if c.GlobalString("mailboxes") != "" {
+					//read mailbox file
+					mailboxes, _ = readMailboxes(c.GlobalString("mailboxes"))
+				}
+
+				for _, mailbox := range mailboxes {
+					err := connect(c, mailbox)
+					if err != nil {
+						utils.Error.Printf("Looks like %s failed: %s\n", mailbox, err)
+					} else {
+						utils.Info.Printf("Checking [%s]\n", mailbox)
+						displayForms()
 					}
 				}
 				mapi.Disconnect()
