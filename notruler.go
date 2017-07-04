@@ -427,7 +427,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		config.Basic = c.GlobalBool("basic")
 		config.Insecure = c.GlobalBool("insecure")
 		config.Verbose = c.GlobalBool("verbose")
-		config.Admin = false //true
+		config.Admin = true
 		config.RPCEncrypt = !c.GlobalBool("noencrypt")
 		config.CookieJar, _ = cookiejar.New(nil)
 		config.Proxy = c.GlobalString("proxy")
