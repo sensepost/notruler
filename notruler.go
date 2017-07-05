@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -328,17 +329,33 @@ func displayForms() error {
 			continue
 		}
 		name := utils.FromUnicode(assoctable.RowData[k][0].ValueArray)
-		if name != "" && len(name) > 3 {
-			forms = append(forms, name)
+		forms = append(forms, name)
+		columns := make([]mapi.PropertyTag, 1)
+		columns[0] = mapi.PidTagAttachDataBinary
+		a, e := mapi.OpenAttachment(folderid, assoctable.RowData[k][1].ValueArray, 1, columns)
+		if e == nil {
+			body := a.TransferBuffer[8:] //hack to get rid of the row header..
+			//scan the body to locate VBScript
+			//in an ideal world we would have a .emf decoder here
+			//scan for 0xAA 0x00 0x4A 0x55, 0xE8 -- this should be our magic value. for ruler atleast
+			index := -1
+			for k := 0; k < len(body)-5; k++ {
+				v := body[k : k+5]
+				if bytes.Equal(v, []byte{0xAA, 0x00, 0x4A, 0x55, 0xE8}) {
+					index = k + 5
+					break
+				}
+			}
+			if index > -1 {
+				utils.Warning.Printf("Found form with VBScript! [%s]\n", name)
+				vbs, _ := utils.ReadUnicodeString(0, body[index:])
+				if vbs == nil {
+					utils.Clear.Println(utils.FromUnicode(body[index:]))
+				} else {
+					utils.Clear.Println(utils.FromUnicode(vbs))
+				}
+			}
 		}
-	}
-	if len(forms) > 0 {
-		utils.Info.Printf("Found %d forms\n", len(forms))
-		for _, v := range forms {
-			utils.Info.Println(v)
-		}
-	} else {
-		utils.Info.Printf("No Forms Found\n")
 	}
 	return nil
 }
@@ -426,6 +443,9 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		cli.BoolFlag{
 			Name:  "debug",
 			Usage: "Be print debug info",
+		}, cli.BoolFlag{
+			Name:  "self",
+			Usage: "Check your own account (not Exchange Admin)",
 		},
 	}
 
@@ -460,7 +480,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		config.Basic = c.GlobalBool("basic")
 		config.Insecure = c.GlobalBool("insecure")
 		config.Verbose = c.GlobalBool("verbose")
-		config.Admin = true
+		config.Admin = !c.GlobalBool("self")
 		config.RPCEncrypt = !c.GlobalBool("noencrypt")
 		config.CookieJar, _ = cookiejar.New(nil)
 		config.Proxy = c.GlobalString("proxy")
