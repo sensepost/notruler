@@ -23,8 +23,8 @@ _testmain.go
 *.test
 *.prof
 
-ruler-*
-ruler
+notruler-*
+notruler
 logs/
 
 build.sh
