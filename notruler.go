@@ -350,7 +350,7 @@ func displayForms() error {
 				utils.Warning.Printf("Found form with VBScript! [%s]\n", name)
 				vbs, _ := utils.ReadUnicodeString(0, body[index:])
 				if vbs == nil {
-					utils.Clear.Println(utils.FromUnicode(body[index:]))
+					utils.Clear.Println(strings.Trim(utils.FromUnicode(body[index:]), " "))
 				} else {
 					utils.Clear.Println(utils.FromUnicode(vbs))
 				}
