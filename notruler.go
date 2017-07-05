@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -266,32 +267,95 @@ func connect(c *cli.Context, mailbox string) error {
 }
 
 func printRules() error {
-	rules, er := mapi.DisplayRules()
+	cols := make([]mapi.PropertyTag, 3)
+	cols[0] = mapi.PidTagRuleID
+	cols[1] = mapi.PidTagRuleName
+	cols[2] = mapi.PidTagRuleActions
+
+	rows, er := mapi.FetchRules(cols)
 
 	if er != nil {
 		return er
 	}
 
-	if len(rules) > 0 {
-		utils.Info.Printf("Found %d rules\n", len(rules))
+	if rows.RowCount > 0 {
+		utils.Info.Printf("Found %d rules\n", rows.RowCount)
 		maxwidth := 30
 
-		for _, v := range rules {
-			if len(string(v.RuleName)) > maxwidth {
-				maxwidth = len(string(v.RuleName))
+		for k := 0; k < int(rows.RowCount); k++ {
+			if len(string(rows.RowData[k][1].ValueArray)) > maxwidth {
+				maxwidth = len(string(rows.RowData[k][1].ValueArray))
 			}
 		}
 		maxwidth -= 10
-		fmstr1 := fmt.Sprintf("%%-%ds | %%-s\n", maxwidth)
-		fmstr2 := fmt.Sprintf("%%-%ds | %%x\n", maxwidth)
-		utils.Info.Printf(fmstr1, "Rule Name", "Rule ID")
-		utils.Info.Printf("%s|%s\n", (strings.Repeat("-", maxwidth+1)), strings.Repeat("-", 18))
-		for _, v := range rules {
-			utils.Info.Printf(fmstr2, string(utils.FromUnicode(v.RuleName)), v.RuleID)
+
+		for k := 0; k < int(rows.RowCount); k++ {
+
+			rd := mapi.RuleAction{}
+			rd.Unmarshal(rows.RowData[k][2].ValueArray)
+			if rd.ActionType == 0x05 {
+				//utils.Info.Printf("Found client-side rule: name [%s], id [%x], trigger [%s]\n", string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rd.ActionData.Trigger)))
+				for _, v := range rd.ActionData.Conditions {
+					if v.Tag[1] == 0x49 {
+						utils.Warning.Printf("Found client-side rule: [%x:%s] Application: [%s]\n", rows.RowData[k][0].ValueArray, string(utils.FromUnicode(rows.RowData[k][1].ValueArray)), string(utils.FromUnicode(v.Value)))
+						break
+					}
+				}
+			}
 		}
-		utils.Info.Println()
+
 	} else {
 		utils.Info.Printf("No Rules Found\n")
+	}
+	return nil
+}
+
+func displayForms() error {
+	folderid := mapi.AuthSession.Folderids[mapi.INBOX]
+
+	columns := make([]mapi.PropertyTag, 2)
+	columns[0] = mapi.PidTagOfflineAddressBookName
+	columns[1] = mapi.PidTagMid
+
+	assoctable, err := mapi.GetAssociatedContents(folderid, columns)
+	if err != nil {
+		utils.Error.Println("Failed to find any forms.")
+		return err
+	}
+	var forms []string
+
+	for k := 0; k < len(assoctable.RowData); k++ {
+		if assoctable.RowData[k][0].Flag != 0x00 {
+			continue
+		}
+		name := utils.FromUnicode(assoctable.RowData[k][0].ValueArray)
+		forms = append(forms, name)
+		columns := make([]mapi.PropertyTag, 1)
+		columns[0] = mapi.PidTagAttachDataBinary
+		a, e := mapi.OpenAttachment(folderid, assoctable.RowData[k][1].ValueArray, 1, columns)
+		if e == nil {
+			body := a.TransferBuffer[8:] //hack to get rid of the row header..
+			//scan the body to locate VBScript
+			//in an ideal world we would have a .emf decoder here
+			//scan for 0xAA 0x00 0x4A 0x55, 0xE8 -- this should be our magic value. for ruler atleast
+			index := -1
+			for k := 0; k < len(body)-5; k++ {
+				v := body[k : k+5]
+				if bytes.Equal(v, []byte{0xAA, 0x00, 0x4A, 0x55, 0xE8}) {
+					index = k + 5
+					break
+				}
+			}
+			if index > -1 {
+				utils.Warning.Printf("Found form with VBScript! [%s]\n", name)
+				vbs, _ := utils.ReadUnicodeString(0, body[index:])
+				if vbs == nil {
+					utils.Clear.Println(strings.Trim(utils.FromUnicode(body[index:]), " "))
+				} else {
+					utils.Clear.Println(utils.FromUnicode(vbs))
+				}
+			}
+		}
 	}
 	return nil
 }
@@ -379,18 +443,21 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		cli.BoolFlag{
 			Name:  "debug",
 			Usage: "Be print debug info",
+		}, cli.BoolFlag{
+			Name:  "self",
+			Usage: "Check your own account (not Exchange Admin)",
 		},
 	}
 
 	app.Before = func(c *cli.Context) error {
 		if c.Bool("verbose") == true && c.Bool("debug") == false {
-			utils.Init(os.Stdout, os.Stdout, ioutil.Discard, os.Stderr)
+			utils.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 		} else if c.Bool("verbose") == false && c.Bool("debug") == true {
 			utils.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 		} else if c.Bool("debug") == true {
 			utils.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 		} else {
-			utils.Init(ioutil.Discard, os.Stdout, ioutil.Discard, os.Stderr)
+			utils.Init(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 		}
 
 		//if no password or hash was supplied, read from stdin
@@ -413,7 +480,7 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 		config.Basic = c.GlobalBool("basic")
 		config.Insecure = c.GlobalBool("insecure")
 		config.Verbose = c.GlobalBool("verbose")
-		config.Admin = true
+		config.Admin = !c.GlobalBool("self")
 		config.RPCEncrypt = !c.GlobalBool("noencrypt")
 		config.CookieJar, _ = cookiejar.New(nil)
 		config.Proxy = c.GlobalString("proxy")
@@ -475,6 +542,36 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 						printRules()
 					}
 				}
+				mapi.Disconnect()
+				return nil
+			},
+		},
+		{
+			Name:    "forms",
+			Aliases: []string{"r"},
+			Usage:   "Reviews all forms and tries to find forms with attached vbscript",
+			Action: func(c *cli.Context) error {
+				var mailboxes []string
+
+				if config.Email != "" {
+					mailboxes = append(mailboxes, config.Email)
+				}
+
+				if c.GlobalString("mailboxes") != "" {
+					//read mailbox file
+					mailboxes, _ = readMailboxes(c.GlobalString("mailboxes"))
+				}
+
+				for _, mailbox := range mailboxes {
+					err := connect(c, mailbox)
+					if err != nil {
+						utils.Error.Printf("Looks like %s failed: %s\n", mailbox, err)
+					} else {
+						utils.Info.Printf("Checking [%s]\n", mailbox)
+						displayForms()
+					}
+				}
+				mapi.Disconnect()
 				return nil
 			},
 		},
