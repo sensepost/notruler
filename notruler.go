@@ -360,6 +360,30 @@ func displayForms() error {
 	return nil
 }
 
+func checkHomepage() error {
+	props := make([]mapi.PropertyTag, 1)
+	props[0] = mapi.PidTagFolderWebViewInfo
+	_, c, e := mapi.GetFolderProps(mapi.INBOX, props)
+	if e == nil {
+		wvp := mapi.WebViewPersistenceObjectStream{}
+		wvp.Unmarshal(c.RowData[0].ValueArray)
+
+		if utils.FromUnicode(wvp.Value) == "" {
+			utils.Info.Println("No endpoint set")
+			return nil
+		} else {
+			utils.Warning.Printf("Found endpoint: %s\n", utils.FromUnicode(wvp.Value))
+		}
+
+		if wvp.Flags == 0 {
+			utils.Info.Println("Webview is set as DISABLED")
+		} else {
+			utils.Info.Println("Webview is set as ENABLED")
+		}
+	}
+	return e
+}
+
 func main() {
 
 	app := cli.NewApp()
@@ -569,6 +593,35 @@ A tool by @_staaldraad from @sensepost for Exchange Admins to check for abused E
 					} else {
 						utils.Info.Printf("Checking [%s]\n", mailbox)
 						displayForms()
+					}
+				}
+				mapi.Disconnect()
+				return nil
+			},
+		},
+		{
+			Name:    "homepage",
+			Aliases: []string{"r"},
+			Usage:   "Reviews all mailboxes and checks if a homepage is set (only checks the inbox)",
+			Action: func(c *cli.Context) error {
+				var mailboxes []string
+
+				if config.Email != "" {
+					mailboxes = append(mailboxes, config.Email)
+				}
+
+				if c.GlobalString("mailboxes") != "" {
+					//read mailbox file
+					mailboxes, _ = readMailboxes(c.GlobalString("mailboxes"))
+				}
+
+				for _, mailbox := range mailboxes {
+					err := connect(c, mailbox)
+					if err != nil {
+						utils.Error.Printf("Looks like %s failed: %s\n", mailbox, err)
+					} else {
+						utils.Info.Printf("Checking [%s]\n", mailbox)
+						checkHomepage()
 					}
 				}
 				mapi.Disconnect()
