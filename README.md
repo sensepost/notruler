@@ -1,6 +1,6 @@
 # Introduction
 
-NotRuler is the opposite of [Ruler]. The tool aims to make life a little easier for Exchange Admins by allowing for the detection of both client-side rules and VBScript enabled forms. At a miminum this should allow for the detection of attacks created through [Ruler].
+NotRuler is the opposite of [Ruler]. The tool aims to make life a little easier for Exchange Admins by allowing for the detection of both client-side rules, VBScript enabled forms and custom homepages. At a miminum this should allow for the detection of all attacks created through [Ruler].
 
 NotRuler allows you to interact with Exchange servers remotely, through either the MAPI/HTTP or RPC/HTTP protocol.
 
@@ -12,6 +12,7 @@ NotRuler can query one or more Exchange mailboxes and detects client-side Outloo
 * Check your own account for compromise
 * Extract stager address for Malicious rules
 * Extract VBScript used in forms
+* Extract a remote URL used as a homepage
 
 # Getting Started
 
@@ -24,6 +25,7 @@ NotRuler has two modes of operation:
 
 * Rules -- check for client-side rules
 * Forms -- check for VBScript enabled forms
+* Homepage -- check for a custom homepage
 
 ## Rules
 
@@ -90,6 +92,33 @@ Sample output:
     Function P()
 CreateObject("Wscript.Shell").Run "powershell.exe -NoP -sta -NonI -W Hidden -Enc WwBTAFkAUwB0AEUAbQAuAE4AZQBUAC4AUwBFAHIAdgBJAGMAZQBQAG8ASQBOAFQATQBBAG4AYQBHAEUAcgBdADoAOgBFAHgAcABlAGMAVAAxADAAMABDAG8ATgB0AGkATgBVAEUAIA=="
 
+[+] Checking [cindy.shell@testdomain.com]
+[+] Checking [henry.hammond@testdomain.com]
+[+] Checking [james.smith@testdomain.com]
+```
+
+## Homepage
+
+Amd the same again, you need to either have a list of mailboxes or a single mailbox to check. 
+
+Using the Exchange Admin account, you should be able to log into any mailbox on the Exchange server:
+
+```
+./notruler --username exchangeadmin --mailboxes /path/to/mailbox.list homepage
+```
+
+You can also check your own account by using ```--self```
+
+```
+./notruler --username john.ford@testdomain.com --mailbox john.ford@testdomain.com --self homepage
+```
+
+Sample output:
+
+```
+[+] Checking [john.ford@testdomain.com]
+[WARNING] Found endpoint: http://attack.attackpew.com/rce.html
+[+] Webview is set as ENABLED
 [+] Checking [cindy.shell@testdomain.com]
 [+] Checking [henry.hammond@testdomain.com]
 [+] Checking [james.smith@testdomain.com]
