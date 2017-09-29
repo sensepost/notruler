@@ -124,6 +124,12 @@ Sample output:
 [+] Checking [james.smith@testdomain.com]
 ```
 
+# IOCs
+
+I've added a list of IOC's here: [iocs.md](https://github.com/sensepost/notruler/blob/master/iocs.md)
+
+Feel free to submit Issues/PRs with further IOCs!
+
 # License
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
