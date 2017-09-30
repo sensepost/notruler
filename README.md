@@ -1,6 +1,6 @@
 # Introduction
 
-NotRuler is the opposite of [Ruler]. The tool aims to make life a little easier for Exchange Admins by allowing for the detection of both client-side rules, VBScript enabled forms and custom homepages. At a miminum this should allow for the detection of all attacks created through [Ruler].
+NotRuler is the opposite of [Ruler]. The tool aims to make life a little easier for Exchange Admins by allowing for the detection of both client-side rules and VBScript enabled forms. At a miminum this should allow for the detection of all attacks created through [Ruler].
 
 NotRuler allows you to interact with Exchange servers remotely, through either the MAPI/HTTP or RPC/HTTP protocol.
 
@@ -12,7 +12,6 @@ NotRuler can query one or more Exchange mailboxes and detects client-side Outloo
 * Check your own account for compromise
 * Extract stager address for Malicious rules
 * Extract VBScript used in forms
-* Extract a remote URL used as a homepage
 
 # Getting Started
 
@@ -106,7 +105,7 @@ Feel free to submit Issues/PRs with further IOCs!
 # License
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-Ruler is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (http://creativecommons.org/licenses/by-nc-sa/4.0/) Permissions beyond the scope of this license may be available at http://sensepost.com/contact/.
+NotRuler is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (http://creativecommons.org/licenses/by-nc-sa/4.0/) Permissions beyond the scope of this license may be available at http://sensepost.com/contact/.
 
 
 [Ruler]: <https://github.com/sensepost/ruler>
