@@ -12,6 +12,7 @@ NotRuler can query one or more Exchange mailboxes and detects client-side Outloo
 * Check your own account for compromise
 * Extract stager address for Malicious rules
 * Extract VBScript used in forms
+* Check for 'homepage' and extract URL
 
 # Getting Started
 
